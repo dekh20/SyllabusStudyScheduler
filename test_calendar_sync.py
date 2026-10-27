@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from calendar_sync import CalendarService, ExternalCalendarAdapter, ManualEvent, Reminder
+from calendar_sync_prototype import CalendarService, ExternalCalendarAdapter, ManualEvent, Reminder
 
 
 START = datetime(2026, 10, 26, 16, tzinfo=timezone.utc)
