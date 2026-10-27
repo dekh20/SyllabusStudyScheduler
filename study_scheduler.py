@@ -1,7 +1,8 @@
 # Study Scheduler
 # This class creates and manages study sessions based on when a student is free
 # Use the study session and time checking code from calendar_sync
-from calendar_sync import StudySession, validate_times
+
+from calendar_sync_prototype import StudySession, validate_times
 
 
 # Class that manages the student's study schedule
