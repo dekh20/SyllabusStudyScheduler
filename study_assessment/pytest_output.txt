@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.17, pytest-9.1.1, pluggy-1.7.0 -- /usr/local/bin/python3
+cachedir: .pytest_cache
+rootdir: /home/claude/sa3/study_assessment
+plugins: platformdirs-4.13.0, anyio-4.15.1
+collecting ... collected 15 items
+
+tests/test_assessment_result.py::TestAssessmentResult::test_score_calculation PASSED [  6%]
+tests/test_assessment_result.py::TestAssessmentResult::test_retake_creates_new_result_and_stores_history PASSED [ 13%]
+tests/test_assessment_result.py::TestAssessmentResult::test_score_boundaries PASSED [ 20%]
+tests/test_assessment_result.py::TestAssessmentResult::test_many_retakes_history PASSED [ 26%]
+tests/test_assessment_result.py::TestAssessmentResult::test_invalid_answers_and_retake PASSED [ 33%]
+tests/test_assessment_service.py::TestAssessmentService::test_submit_answers_returns_scored_result PASSED [ 40%]
+tests/test_assessment_service.py::TestAssessmentService::test_submit_answers_sets_study_preference PASSED [ 46%]
+tests/test_assessment_service.py::TestAssessmentService::test_single_answer_submission PASSED [ 53%]
+tests/test_assessment_service.py::TestAssessmentService::test_none_and_wrong_type_answers_rejected PASSED [ 60%]
+tests/test_assessment_service.py::TestAssessmentService::test_large_input_rejected_and_preference_unchanged PASSED [ 66%]
+tests/test_study_profile.py::TestStudyProfile::test_profile_id_is_student_uuid PASSED [ 73%]
+tests/test_study_profile.py::TestStudyProfile::test_update_from_result_sets_int_values PASSED [ 80%]
+tests/test_study_profile.py::TestStudyProfile::test_tier_boundaries PASSED [ 86%]
+tests/test_study_profile.py::TestStudyProfile::test_accept_sessions_per_week_limits PASSED [ 93%]
+tests/test_study_profile.py::TestStudyProfile::test_invalid_profile_id_and_result PASSED [100%]
+
+============================== 15 passed in 0.08s ==============================
