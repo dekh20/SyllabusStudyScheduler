@@ -1,6 +1,6 @@
 from copy import deepcopy
-from datetime import datetime
-from uuid import uuid4
+from datetime import datetime, timedelta, timezone
+from uuid import NAMESPACE_URL, uuid4, uuid5
 from zoneinfo import ZoneInfo
 
 
@@ -14,8 +14,31 @@ def require_aware(time):
 def validate_times(start, end):
     require_aware(start)
     require_aware(end)
-    if end <= start:
+    if end.astimezone(timezone.utc) <= start.astimezone(timezone.utc):
         raise ValueError("End time must be after start time")
+
+
+def _ics_text(value):
+    value = value.replace("\r\n", "\n").replace("\r", "\n")
+    return (value.replace("\\", "\\\\").replace("\n", "\\n")
+            .replace(",", "\\,").replace(";", "\\;"))
+
+
+def _ics_datetime(value):
+    return f"{value.year:04d}{value:%m%dT%H%M%SZ}"
+
+
+def _fold_ics_line(line):
+    chunks = []
+    chunk = bytearray()
+    for character in line:
+        encoded = character.encode("utf-8")
+        if len(chunk) + len(encoded) > 75:
+            chunks.append(bytes(chunk))
+            chunk = bytearray(b" ")
+        chunk.extend(encoded)
+    chunks.append(bytes(chunk))
+    return b"\r\n".join(chunks)
 
 
 class Reminder:
@@ -77,8 +100,10 @@ class StudySession(CalendarEvent):
 class DeadlineEvent(CalendarEvent):
     def refresh_due_date(self, due_at):
         require_aware(due_at)
-        duration = self.ends_at - self.starts_at
-        self.reschedule(due_at - duration, due_at)
+        duration = (self.ends_at.astimezone(timezone.utc)
+                    - self.starts_at.astimezone(timezone.utc))
+        start = due_at.astimezone(timezone.utc) - duration
+        self.reschedule(start.astimezone(due_at.tzinfo), due_at)
 
 
 class ManualEvent(CalendarEvent):
@@ -137,24 +162,89 @@ class CalendarService:
         calendar = self.get_calendar(student_id)
         calendar.events[event.event_id] = deepcopy(event)
 
+    def replace_study_sessions(self, student_id, sessions):
+        """Replace the current plan and retain completed sessions and other events."""
+        calendar = self.get_calendar(student_id)
+        retained = {
+            event_id: event for event_id, event in calendar.events.items()
+            if not isinstance(event, StudySession) or event.completed
+        }
+        planned = {}
+        for session in sessions:
+            if not isinstance(session, StudySession):
+                raise TypeError("A study plan must contain StudySession events")
+            session.validate()
+            event_id = session.event_id
+            if event_id in planned:
+                raise ValueError("Duplicate study session ID")
+            previous = calendar.events.get(event_id)
+            if previous is not None and not isinstance(previous, StudySession):
+                raise ValueError("Study session ID belongs to another calendar event")
+            updated = deepcopy(session)
+            if previous is not None:
+                delivered = {
+                    (reminder.reminder_id, reminder.send_at.astimezone(timezone.utc))
+                    for reminder in previous.reminders if reminder.delivered
+                }
+                for reminder in updated.reminders:
+                    key = (reminder.reminder_id, reminder.send_at.astimezone(timezone.utc))
+                    if key in delivered:
+                        reminder.delivered = True
+            planned[event_id] = updated
+        # Publish the plan only after validating it, and keep completed versions.
+        calendar.events = {**planned, **retained}
+
     def list_events(self, student_id):
         calendar = self.get_calendar(student_id)
-        events = sorted(calendar.events.values(), key=lambda event: event.starts_at)
+        events = sorted(calendar.events.values(),
+                        key=lambda event: event.starts_at.astimezone(timezone.utc))
         return deepcopy(events)
 
     def remove_event(self, student_id, event_id):
         calendar = self.get_calendar(student_id)
         calendar.remove_event(event_id)
 
+    def export_ics(self, student_id):
+        """Return an iCalendar snapshot as UTF-8 bytes."""
+        calendar = self.get_calendar(student_id)
+        events = self.list_events(student_id)
+        if not events:
+            raise ValueError("Add a calendar event before exporting")
+
+        lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Syllab.Us//Study Calendar//EN"]
+        timestamp = _ics_datetime(datetime.now(timezone.utc))
+        for event in events:
+            uid = uuid5(NAMESPACE_URL, f"syllab.us/calendar/{(calendar.calendar_id, event.event_id)!r}")
+            end = event.ends_at.astimezone(timezone.utc).replace(microsecond=0)
+            lines.extend(["BEGIN:VEVENT", f"UID:{uid}", f"DTSTAMP:{timestamp}"])
+            if isinstance(event, DeadlineEvent):
+                lines.append(f"DTSTART:{_ics_datetime(end)}")
+            else:
+                start = event.starts_at.astimezone(timezone.utc).replace(microsecond=0)
+                # iCalendar timestamps have whole-second precision.
+                if end == start:
+                    end += timedelta(seconds=1)
+                lines.extend([f"DTSTART:{_ics_datetime(start)}", f"DTEND:{_ics_datetime(end)}"])
+            lines.append(f"SUMMARY:{_ics_text(event.title)}")
+            if isinstance(event, ManualEvent) and event.notes:
+                lines.append(f"DESCRIPTION:{_ics_text(event.notes)}")
+            lines.append("END:VEVENT")
+        lines.append("END:VCALENDAR")
+        return b"\r\n".join(_fold_ics_line(line) for line in lines) + b"\r\n"
+
     def send_due_reminders(self, now):
         require_aware(now)
+        now = now.astimezone(timezone.utc)
         delivered = []
         for calendar in self._calendars.values():
             for event in calendar.events.values():
+                # Completed study sessions no longer need reminders.
+                if isinstance(event, StudySession) and event.completed:
+                    continue
                 for reminder in event.reminders:
                     if not reminder.scheduled or reminder.delivered:
                         continue
-                    if reminder.send_at > now:
+                    if reminder.send_at.astimezone(timezone.utc) > now:
                         continue
                     # Only update the local flag. No notification is sent.
                     reminder.delivered = True
