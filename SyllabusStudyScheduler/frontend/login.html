@@ -1,0 +1,36 @@
+<!-- Sign-in and create-account page. Shown inside base.html. -->
+<div class="hero">
+  <p class="eyebrow">Your academic command center</p>
+  <h1>Less deadline stress. More progress.</h1>
+  <p class="lead muted">Create a student account, sign in securely, track assignments, and see reminders for work due within the next 48 hours.</p>
+</div>
+
+<div class="grid">
+  <section class="card">
+    <h2>Welcome back</h2>
+    <p class="muted small">Enter your email and password to access your dashboard.</p>
+    <form method="post" action="/login">
+      <label for="login-email">School email</label>
+      <input id="login-email" name="email" type="email" autocomplete="username" required>
+      <label for="login-password">Password</label>
+      <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+      <p></p>
+      <button type="submit">Sign in</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>New to Syllab.Us?</h2>
+    <p class="muted small">Create an account for the prototype. Accounts and assignments are saved locally.</p>
+    <form method="post" action="/register">
+      <label for="register-name">Full name</label>
+      <input id="register-name" name="name" autocomplete="name" maxlength="80" required>
+      <label for="register-email">Email address</label>
+      <input id="register-email" name="email" type="email" autocomplete="email" required>
+      <label for="register-password">Password (8+ characters)</label>
+      <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+      <p></p>
+      <button class="secondary" type="submit">Create account</button>
+    </form>
+  </section>
+</div>

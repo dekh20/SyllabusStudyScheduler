@@ -1,0 +1,23 @@
+<!-- One assignment in the "My assignments" list. Repeated once per task. -->
+<div class="task">
+  <div class="tasktop">
+    <div>
+      <div class="taskname">${title}</div>
+      <div class="muted small">${course} · Due ${due}</div>
+    </div>
+    <span class="tag">${state}</span>
+  </div>
+  <div class="taskcontrols">
+    <form class="taskcontrols" method="post" action="/status">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="id" value="${id}">
+      <select name="status" aria-label="Progress for ${title}">${status_options}</select>
+      <button class="secondary">Save status</button>
+    </form>
+    <form method="post" action="/delete">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <input type="hidden" name="id" value="${id}">
+      <button type="submit" class="secondary">Delete</button>
+    </form>
+  </div>
+</div>

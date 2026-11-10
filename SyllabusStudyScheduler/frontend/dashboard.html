@@ -1,0 +1,52 @@
+<!-- Student dashboard. Shown inside base.html. app.py fills in the placeholders. -->
+<div class="hero sectionhead">
+  <div>
+    <p class="eyebrow">Student dashboard</p>
+    <h1>Welcome, ${first_name}.</h1>
+    <p class="lead muted">Keep your courses organized and stay ahead of upcoming deadlines.</p>
+  </div>
+  <form method="post" action="/logout">
+    <input type="hidden" name="csrf" value="${csrf}">
+    <button class="secondary">Log out</button>
+  </form>
+</div>
+
+<div class="stats">
+  <div class="stat"><strong>${total}</strong><span>Total tasks</span></div>
+  <div class="stat"><strong>${pending}</strong><span>To do</span></div>
+  <div class="stat"><strong>${completed}</strong><span>Completed</span></div>
+</div>
+
+<div class="grid">
+  <section class="card">
+    <h2>Add an assignment</h2>
+    <form method="post" action="/add">
+      <input type="hidden" name="csrf" value="${csrf}">
+      <label for="task-title">Assignment title</label>
+      <input name="title" id="task-title" placeholder="e.g. Software Engineering Lab 7" required maxlength="150">
+      <label for="task-course">Course</label>
+      <input name="course" id="task-course" placeholder="e.g. CSEN 174" required maxlength="80">
+      <label for="task-due">Due date and time</label>
+      <input id="task-due" type="datetime-local" name="due_at" required>
+      <p></p>
+      <button>Add assignment</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="sectionhead">
+      <h2>Upcoming reminders</h2>
+      <span class="tag">48-hour window</span>
+    </div>
+    <p class="muted small">Shows unfinished assignments due within 48 hours. Refreshing the dashboard updates this list.</p>
+    ${reminders}
+  </section>
+</div>
+
+<section class="card" style="margin-top:22px">
+  <div class="sectionhead">
+    <h2>My assignments</h2>
+    <span class="muted small">${total} total</span>
+  </div>
+  ${task_rows}
+</section>
