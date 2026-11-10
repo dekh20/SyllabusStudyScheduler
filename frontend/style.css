@@ -1,0 +1,32 @@
+
+body {
+    font-family: Arial;
+    background-color: #fff5f7;
+    text-align: center;
+    padding-top: 100px;
+}
+
+.login-container {
+    background-color: white;
+    width: 300px;
+    padding: 30px;
+    margin: auto;
+    border-radius: 10px;
+}
+
+h1 {
+    color: pink;
+}
+
+input {
+    padding: 10px;
+    margin: 10px;
+}
+
+button {
+    background-color: pink;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
