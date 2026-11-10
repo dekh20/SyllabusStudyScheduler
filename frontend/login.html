@@ -1,52 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Syllab.Us - Login</title>
-	<link rel="stylesheet" href="style.css">
-</head>
-<body>
-	<nav>
-		<h2>Syllab.Us</h2>
-	</nav>
-	<div class="container">
-		<h1>Less deadline stress. More progress.</h1>
-		<p>Create an account, track assignments, and stay on top of deadlines.</p>
-	<div class="forms">
-		<div class="card">
-                	<h2>Welcome back</h2>
-                	<p>Enter your email and password.</p>
-                <form method="POST" action="/login">
-                    	<label for="login-email">School Email</label>
-                    	<input type="email" id="login-email" name="email" required>
-                	<label for="login-password">Password</label>
-                    	<input type="password" id="login-password" name="password" required>
-			<button type="submit">Sign In</button>
-		</form>
-	</div>
-		<div class="card">
-			<h2>New to Syllab.Us?</h2>
-                	<p>Create your student account.</p>
+<!-- Sign-in and create-account page. Shown inside base.html. -->
+<div class="hero">
+  <p class="eyebrow">Your academic command center</p>
+  <h1>Less deadline stress. More progress.</h1>
+  <p class="lead muted">Create a student account, sign in securely, track assignments, and see reminders for work due within the next 48 hours.</p>
+</div>
 
-                <form action ="assessment.html">
-                    <label for="register-name">Full Name</label>
-                    <input type="text" id="register-name"
-                           name="name" required>
+<div class="grid">
+  <section class="card">
+    <h2>Welcome back</h2>
+    <p class="muted small">Enter your email and password to access your dashboard.</p>
+    <form method="post" action="/login">
+      <label for="login-email">School email</label>
+      <input id="login-email" name="email" type="email" autocomplete="username" required>
+      <label for="login-password">Password</label>
+      <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+      <p></p>
+      <button type="submit">Sign in</button>
+    </form>
+  </section>
 
-                    <label for="register-email">Email Address</label>
-                    <input type="email" id="register-email"
-                           name="email" required>
-
-                    <label for="register-password">Password</label>
-                    <input type="password" id="register-password"
-                           name="password" minlength="8" required>
-
-                    <button type="submit">Create Account</button>
-                </form>
-            </div>
-
-        </div>
-    </div>
-</body>
-</html>
+  <section class="card">
+    <h2>New to Syllab.Us?</h2>
+    <p class="muted small">Create an account for the prototype. Accounts and assignments are saved locally.</p>
+    <form method="post" action="/register">
+      <label for="register-name">Full name</label>
+      <input id="register-name" name="name" autocomplete="name" maxlength="80" required>
+      <label for="register-email">Email address</label>
+      <input id="register-email" name="email" type="email" autocomplete="email" required>
+      <label for="register-password">Password (8+ characters)</label>
+      <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+      <p></p>
+      <button class="secondary" type="submit">Create account</button>
+    </form>
+  </section>
+</div>
